@@ -1,0 +1,68 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.so
+
+# Cython debug symbols
+cython_debug/
+
+# Environment variables
+.env
+.env.*
+
+# Virtual environment
+.venv/
+venv/
+ENV/
+env/
+*.env
+myenv/
+
+# VSCode settings
+.vscode/
+
+# PyCharm settings
+.idea/
+
+# mypy
+.mypy_cache/
+
+# Pytest
+.cache/
+
+# Coverage reports
+.coverage
+coverage.xml
+*.cover
+
+# Alembic
+migrations/
+
+# FastAPI application logs
+logs/
+*.log
+
+# SQLite database file
+*.db
+
+# Docker
+.docker/
+
+# Docker-compose overrides
+docker-compose.override.yml
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Flake8
+.flake8
+
+# Test and build artifacts
+dist/
+build/
+*.egg-info/
+
+# PyInstaller
+*.spec

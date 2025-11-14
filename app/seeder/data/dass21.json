@@ -1,0 +1,23 @@
+[
+	{ "id": 1, "statement": "Saya merasa sulit untuk rileks", "category": "stress" },
+	{ "id": 2, "statement": "Saya merasakan mulut saya kering", "category": "anxiety" },
+	{ "id": 3, "statement": "Saya tidak bisa berfikir positif", "category": "depression" },
+	{ "id": 4, "statement": "Saya sering merasa kesulitan bernapas", "category": "anxiety" },
+	{ "id": 5, "statement": "Saya merasa kesulitan untuk memiliki inisiatif melakukan suatu hal", "category": "depression" },
+	{ "id": 6, "statement": "Saya sering kali bersikap berlebihan dalam menanggapi suatu hal", "category": "stress" },
+	{ "id": 7, "statement": "Saya sering merasakan tremor/gemetar di tubuh", "category": "anxiety" },
+	{ "id": 8, "statement": "Saya merasa sering kehabisan tenaga akibat perasaan cemas", "category": "stress" },
+	{ "id": 9, "statement": "Saya sering merasa khawatir berada pada situasi yang dapat membuat saya merasa panik dan bersikap konyol", "category": "anxiety" },
+	{ "id": 10, "statement": "Saya merasa tidak memiliki sesuatu untuk dikerjakan", "category": "depression" },
+	{ "id": 11, "statement": "Saya sering merasa cemas/khawatir", "category": "stress" },
+	{ "id": 12, "statement": "Saya sering kesulitan untuk bersantai", "category": "stress" },
+	{ "id": 13, "statement": "Saya sering merasa galau", "category": "depression" },
+	{ "id": 14, "statement": "Saya tidak pernah menoleransi semua hal yang mengganggu sesuatu yang saya kerjakan", "category": "stress" },
+	{ "id": 15, "statement": "Saya merasa sering panik", "category": "anxiety" },
+	{ "id": 16, "statement": "Saya tidak merasa antusias dalam segala hal", "category": "depression" },
+	{ "id": 17, "statement": "Saya merasa tidak berguna sebagai manusia", "category": "depression" },
+	{ "id": 18, "statement": "Saya cenderung sensitive", "category": "stress" },
+	{ "id": 19, "statement": "Saya sering dapat merasakan ketika jantung berdetak kencang", "category": "anxiety" },
+	{ "id": 20, "statement": "Saya sering merasa takut tanpa alasan", "category": "anxiety" },
+	{ "id": 21, "statement": "Saya merasa hidup saya tidak berharga", "category": "depression" }
+]
