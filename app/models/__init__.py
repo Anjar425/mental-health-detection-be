@@ -1,4 +1,4 @@
-from .user import User
+from .user import User, RoleEnum
 from .rule import Rule
 from .premise import Premise
 from .dass42 import Dass42
@@ -13,6 +13,7 @@ from .preference import Preference
 __all__ = [
     "User",
     "Rule",
+    "RoleEnum",
     "Premise",
     "Dass42",
     "Category",

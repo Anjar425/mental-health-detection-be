@@ -1,3 +1,5 @@
 from .auth_controller import AuthController
 from .base_controller import BaseController
 from .expert_profiles_controller import ExpertProfilesController
+from .preferences_controller import PreferencesController
+from .decission_support_system_controller import DecissionSupportSystemController

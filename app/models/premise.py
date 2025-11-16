@@ -30,8 +30,8 @@ class Premise(Base):
 
     # Menggunakan Enum untuk prefix, conjunction, dan level
     prefix = Column(Enum(PrefixEnum), default=PrefixEnum.no_prefix)  # no prefix / not
-    conjunction = Column(Enum(ConjunctionEnum), default=ConjunctionEnum.and_)  # and / or / then
     level = Column(Enum(LevelEnum), default=LevelEnum.low)  # low / med / high
+    conjunction = Column(Enum(ConjunctionEnum), default=ConjunctionEnum.and_)  # and / or / then
 
     # Relasi dengan Question dan Rule
     dass42 = relationship("Dass42", back_populates="premises")

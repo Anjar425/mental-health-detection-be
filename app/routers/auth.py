@@ -33,7 +33,6 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(user: UserLogin, db: Session = Depends(get_db)):
-
     db_user = auth.authenticate_user(db, user.email, user.password)
     if not db_user:
         raise HTTPException(
@@ -41,8 +40,18 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+
+    # Ambil role dari database, bukan dari request user
     access_token = auth.create_access_token(
-        data={"sub": user.email}, expires_delta=access_token_expires
+        data={
+            "sub": db_user.email,
+            "id": db_user.id,
+            "role": db_user.role.value          # ⬅️ role asli dari database
+        },
+        expires_delta=access_token_expires
     )
+
     return {"access_token": access_token, "token_type": "bearer"}
+
