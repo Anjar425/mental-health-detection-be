@@ -19,14 +19,14 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     
     hashed_password = auth.get_password_hash(user.password)
     
-    db_user = User(email=user.email, hashed_password=hashed_password, role=user.role)
+    db_user = User(username=user.username, email=user.email, hashed_password=hashed_password, role=user.role)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
     
     access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
     access_token = auth.create_access_token(
-        data={"sub": user.email, "role": user.role}, expires_delta=access_token_expires
+        data={"sub": user.email, "role": user.role.value, "username": user.username}, expires_delta=access_token_expires
     )
     
     return {"access_token": access_token, "token_type": "bearer"}
@@ -48,7 +48,8 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
         data={
             "sub": db_user.email,
             "id": db_user.id,
-            "role": db_user.role.value          # ⬅️ role asli dari database
+            "role": db_user.role.value,
+            "username": db_user.username
         },
         expires_delta=access_token_expires
     )

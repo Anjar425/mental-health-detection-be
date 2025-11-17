@@ -3,3 +3,5 @@ from .base_controller import BaseController
 from .expert_profiles_controller import ExpertProfilesController
 from .preferences_controller import PreferencesController
 from .decission_support_system_controller import DecissionSupportSystemController
+from .ruleset_controller import RulesetController
+from .fuzzy_inference_controller import FuzzyInferenceController

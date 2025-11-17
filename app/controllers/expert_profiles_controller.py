@@ -11,8 +11,8 @@ class ExpertProfilesController(BaseController):
         # Ambil semua profile
         profiles = db.query(ExpertProfile).all()
 
-        if not profiles:
-            raise HTTPException(status_code=404, detail="No profiles found")
+        # if not profiles:
+        #     raise HTTPException(status_code=404, detail="No profiles found")
 
         results = []
 

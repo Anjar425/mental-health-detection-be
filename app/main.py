@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
-from .routers import auth, profile, preference, qdss
+from .routers import auth, profile, preference, qdss, fuzzy_inference, ruleset
 from .seeder import run_seeders
 
 @asynccontextmanager
@@ -26,6 +26,8 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(profile.router, prefix="/expert/profile", tags=["profile"])
 app.include_router(preference.router, prefix="/expert/preference", tags=["preference"])
 app.include_router(qdss.router, prefix="/qdss", tags=["QDSS"])
+app.include_router(ruleset.router, prefix="/ruleset", tags=["ruleset"])
+app.include_router(fuzzy_inference.router, prefix="/inference", tags=["fuzzy-inference"])
 
 
 @app.get("/")

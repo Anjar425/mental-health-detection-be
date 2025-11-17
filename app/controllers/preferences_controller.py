@@ -38,8 +38,8 @@ class PreferencesController(BaseController):
 
         # Ambil preferences yang hanya milik current_user
         rows = db.query(Preference).filter(Preference.user_id == current_user.id).all()
-        if not rows:
-            raise HTTPException(status_code=404, detail="Preferences not found for this user")
+        # if not rows:
+        #     raise HTTPException(status_code=404, detail="Preferences not found for this user")
 
         # Proses hasil menjadi struktur yang diinginkan
         result = {
