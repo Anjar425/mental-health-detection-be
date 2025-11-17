@@ -1,0 +1,11 @@
+id,username,email,password,role
+1,expert1,expert1@example.com,password123,expert
+2,expert2,expert2@example.com,password123,expert
+3,expert3,expert3@example.com,password123,expert
+4,expert4,expert4@example.com,password123,expert
+5,expert5,expert5@example.com,password123,expert
+6,expert6,expert6@example.com,password123,expert
+7,expert7,expert7@example.com,password123,expert
+8,expert8,expert8@example.com,password123,expert
+9,user1,user1@example.com,password123,user
+10,user2,user2@example.com,password123,user
