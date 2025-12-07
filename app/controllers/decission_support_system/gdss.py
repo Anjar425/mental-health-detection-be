@@ -2,8 +2,10 @@
 import numpy as np
 import math
 import random
-from typing import List, Dict, Tuple
+from typing import List, Dict, Tuple, Optional
 from ...schemas import ExpertCapabilityIn, PreferenceItem
+from sqlalchemy.orm import Session
+from ...models import AssessmentHistory
 
 # ==============================================================================
 # BAGIAN 1: LOGIKA FUZZY (Tidak Berubah)
@@ -193,7 +195,10 @@ def create_dynamic_consensus_model(
 
 def calculate_patient_result(
     patient_scores: List[int], 
-    consensus_model: np.ndarray
+    consensus_model: np.ndarray,
+    db: Optional[Session] = None,
+    user_id: Optional[int] = None,
+    assessment_type: str = "21",
 ) -> Dict[str, float]:
     accumulated_scores = {"depression": 0.0, "anxiety": 0.0, "stress": 0.0}
     
@@ -216,5 +221,51 @@ def calculate_patient_result(
         "anxiety": accumulated_scores["anxiety"] / total_accumulated,
         "stress": accumulated_scores["stress"] / total_accumulated
     }
-    
-    return final_result
+    # --- BAGIAN INI YANG DIUBAH UNTUK CEK ERROR ---
+    print(f"DEBUG: Mencoba menyimpan untuk User ID: {user_id}") # Cek 1
+
+    if db is not None and user_id is not None:
+        try:
+            # 1. Konversi ke Integer 0-100
+            d_score = int(round(final_result["depression"] * 100))
+            a_score = int(round(final_result["anxiety"] * 100))
+            s_score = int(round(final_result["stress"] * 100))
+            
+            # 2. Tentukan Label Severity
+            highest_pct = max(d_score, a_score, s_score)
+            if highest_pct <= 20:   label = "Normal"
+            elif highest_pct <= 40: label = "Mild"
+            elif highest_pct <= 60: label = "Moderate"
+            elif highest_pct <= 80: label = "Severe"
+            else:                   label = "Extremely Severe"
+
+            print(f"DEBUG: Data siap simpan -> D:{d_score}, A:{a_score}, S:{s_score}, Label:{label}") # Cek 2
+
+            # 3. Masukkan ke Model
+            ah = AssessmentHistory(
+                user_id=user_id,
+                depression_score=d_score,
+                anxiety_score=a_score,
+                stress_score=s_score,
+                type=str(assessment_type), # Pastikan string
+                highest_severity=label,
+            )
+            
+            # 4. Eksekusi DB
+            db.add(ah)
+            db.commit()
+            db.refresh(ah)
+            print(">>> SUKSES! DATA TERSIMPAN DI DB <<<") 
+            
+        except Exception as e:
+            # INI YANG PENTING: Print error lengkap ke terminal
+            import traceback
+            print("!!! ERROR SAAT MENYIMPAN KE DB !!!")
+            print(f"Pesan Error: {e}")
+            traceback.print_exc() # Print baris kode yang error
+            db.rollback() # Cancel transaksi biar ga nyangkut
+            
+    else:
+        print("DEBUG: DB Session atau User ID kosong (None). Tidak menyimpan.")
+
+    return final_result 

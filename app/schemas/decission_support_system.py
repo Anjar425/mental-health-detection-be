@@ -24,3 +24,4 @@ class ExpertPreferencesOut(BaseModel):
 
 class PatientScoreIn(BaseModel):
     scores: List[int]
+    type: str = "21"

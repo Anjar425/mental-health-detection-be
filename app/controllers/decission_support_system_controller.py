@@ -3,7 +3,9 @@ from .base_controller import BaseController
 from .preferences_controller import PreferencesController
 from .expert_profiles_controller import ExpertProfilesController
 from ..schemas import ExpertCapabilityIn, PreferenceItem
+from ..models import AssessmentHistory
 from app.controllers.decission_support_system.gdss import create_dynamic_consensus_model, calculate_patient_result
+from fastapi import HTTPException, status
 
 class DecissionSupportSystemController(BaseController):
     def convert_expert_preference(self):
@@ -82,7 +84,7 @@ class DecissionSupportSystemController(BaseController):
         }
 
     
-    def calculate_qdds(self, data: List[int]):
+    def calculate_qdds(self, data: List[int], current_user=None, assessment_type: str = "21"):
         pref_data = self.convert_expert_preference()
 
         all_experts = pref_data["all_experts"]
@@ -92,8 +94,57 @@ class DecissionSupportSystemController(BaseController):
             all_experts=all_experts,
             all_preferences=all_preferences
         )
-        result = calculate_patient_result(patient_scores=data, consensus_model=consensus_model)
+        # obtain DB session and ensure result is persisted before returning
+        db = next(self.get_session())
+        result = calculate_patient_result(
+            patient_scores=data,
+            consensus_model=consensus_model,
+            db=db,
+            user_id=(current_user.id if current_user is not None else None),
+            assessment_type=assessment_type,
+        )
 
         return result
 
-    
+    def get_user_history(self, current_user):
+        """
+        Retrieve assessment history for the current user, ordered by newest first.
+        """
+        db = next(self.get_session())
+        records = (
+            db.query(AssessmentHistory)
+            .filter(AssessmentHistory.user_id == current_user.id)
+            .order_by(AssessmentHistory.created_at.desc())
+            .all()
+        )
+        return records
+
+    def delete_history(self, history_id: int, current_user):
+        """
+        Delete an assessment history record if it belongs to the current user.
+        """
+        db = next(self.get_session())
+        
+        # Find the record
+        record = db.query(AssessmentHistory).filter(
+            AssessmentHistory.id == history_id
+        ).first()
+        
+        if not record:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Assessment history record not found"
+            )
+        
+        # Check ownership
+        if record.user_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have permission to delete this record"
+            )
+        
+        # Delete and commit
+        db.delete(record)
+        db.commit()
+        
+        return {"message": "Assessment history deleted successfully", "id": history_id}    
