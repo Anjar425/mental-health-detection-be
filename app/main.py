@@ -15,6 +15,7 @@ from .routers import (
     admin,
     expert_groups,
     expert_portal_groups,
+    groups,
 )
 from .seeder import run_seeders
 
@@ -69,6 +70,13 @@ app.include_router(
     expert_portal_groups.router,
     prefix="/expert/groups",
     tags=["Expert Groups"]
+)
+
+# Register shared groups router for authenticated users
+app.include_router(
+    groups.router,
+    prefix="/groups",
+    tags=["Groups"]
 )
 
 @app.get("/")

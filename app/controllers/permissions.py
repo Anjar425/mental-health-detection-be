@@ -15,3 +15,9 @@ def require_admin_or_expert(current_user: User = Depends(BaseController().get_cu
     if current_user is None or current_user.role not in (RoleEnum.admin, RoleEnum.expert):
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Admin or expert privileges required")
     return current_user
+
+
+def require_authenticated_user(current_user: User = Depends(BaseController().get_current_user)):
+    if current_user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Authentication required")
+    return current_user
