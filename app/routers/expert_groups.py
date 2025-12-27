@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter, Depends, status, HTTPException
-from app.schemas.expert_group import ExpertGroupCreate, ExpertGroupUpdate, ExpertGroupOut
+from app.schemas.expert_group import ExpertGroupCreate, ExpertGroupUpdate, ExpertGroupOut, ExpertGroupSummary
 from app.schemas.group_ranking import GroupRankingResponse
 from app.controllers.expert_group_controller import ExpertGroupController
 from app.controllers.permissions import require_admin
@@ -10,9 +10,14 @@ router = APIRouter()
 
 
 # GET / - List all groups with member_count
-@router.get("", response_model=List[dict])
+@router.get("", response_model=List[ExpertGroupSummary])
 def list_groups(current_user=Depends(ExpertGroupController().get_current_user)):
-    return ExpertGroupController().get_all_groups()
+    try:
+        return ExpertGroupController().get_all_groups()
+    except Exception as exc:
+        import logging
+        logging.exception("Failed to list expert groups")
+        raise HTTPException(status_code=500, detail=f"Failed to list groups: {str(exc)}")
 
  # GET /{id} - Get group details with members
 @router.get("/{group_id}", response_model=ExpertGroupOut, dependencies=[Depends(require_admin)])
