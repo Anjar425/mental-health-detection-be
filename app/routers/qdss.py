@@ -37,6 +37,12 @@ def get_user_history(current_user=Depends(DecissionSupportSystemController().get
     return DecissionSupportSystemController().get_user_history(current_user=current_user)
 
 
+@router.get("/expert/history")
+def get_expert_history(current_user=Depends(DecissionSupportSystemController().get_current_user)):
+    """Retrieve assessment history for groups managed by the current expert."""
+    return DecissionSupportSystemController().get_expert_history(current_user=current_user)
+
+
 @router.delete("/history/{history_id}")
 def delete_user_history(history_id: int, current_user=Depends(DecissionSupportSystemController().get_current_user)):
     """

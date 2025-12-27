@@ -3,7 +3,19 @@ from contextlib import asynccontextmanager
 from fastapi.middleware.cors import CORSMiddleware
 
 # Import routers
-from .routers import auth, auth_me, profile, preference, qdss, fuzzy_inference, ruleset, ranking, admin, expert_groups
+from .routers import (
+    auth,
+    auth_me,
+    profile,
+    preference,
+    qdss,
+    fuzzy_inference,
+    ruleset,
+    ranking,
+    admin,
+    expert_groups,
+    expert_portal_groups,
+)
 from .seeder import run_seeders
 
 @asynccontextmanager
@@ -49,6 +61,13 @@ app.include_router(admin.router, prefix="/admin", tags=["admin"])
 app.include_router(
     expert_groups.router,
     prefix="/admin/groups",
+    tags=["Expert Groups"]
+)
+
+# Register expert group access router for experts
+app.include_router(
+    expert_portal_groups.router,
+    prefix="/expert/groups",
     tags=["Expert Groups"]
 )
 

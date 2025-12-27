@@ -12,6 +12,7 @@ from ..models import AssessmentHistory, User, RoleEnum
 
 from app.controllers.decission_support_system.gdss import calculate_patient_result
 from fastapi import HTTPException, status
+from sqlalchemy.orm import joinedload
 
 # ==============================================================================
 #                 KONFIGURASI FINAL: THESIS GOLD STANDARD
@@ -414,6 +415,75 @@ class DecissionSupportSystemController(BaseController):
                     "stress": round(vec[2] * 100.0, 4)
                 })
         return result
+
+    def get_expert_history(self, current_user):
+        if current_user.role != RoleEnum.expert:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Only experts can access this resource")
+
+        db = next(self.get_session())
+        try:
+            expert = (
+                db.query(User)
+                .options(joinedload(User.groups))
+                .filter(User.id == current_user.id)
+                .first()
+            )
+
+            if expert is None:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Expert not found")
+
+            group_ids = [g.id for g in expert.groups if g.id is not None]
+            if not group_ids:
+                return {"records": [], "groups": []}
+
+            history_rows = (
+                db.query(AssessmentHistory, User)
+                .join(User, User.id == AssessmentHistory.user_id)
+                .filter(AssessmentHistory.group_id.isnot(None))
+                .filter(AssessmentHistory.group_id.in_(group_ids))
+                .order_by(AssessmentHistory.created_at.desc())
+                .all()
+            )
+
+            groups_payload = [
+                {
+                    "id": group.id,
+                    "name": group.name,
+                    "description": group.description,
+                }
+                for group in expert.groups
+                if group.id in group_ids
+            ]
+
+            records = []
+            for history, user_obj in history_rows:
+                group_name = history.group_name
+                if not group_name:
+                    group_name = next(
+                        (group.name for group in expert.groups if group.id == history.group_id),
+                        None,
+                    )
+
+                records.append(
+                    {
+                        "id": history.id,
+                        "user_id": user_obj.id,
+                        "user_email": user_obj.email,
+                        "user_name": user_obj.username,
+                        "group_id": history.group_id,
+                        "group_name": group_name,
+                        "type": history.type,
+                        "depression_score": history.depression_score,
+                        "anxiety_score": history.anxiety_score,
+                        "stress_score": history.stress_score,
+                        "highest_severity": history.highest_severity,
+                        "created_at": history.created_at.isoformat() if history.created_at else None,
+                    }
+                )
+
+            return {"records": records, "groups": groups_payload}
+        finally:
+            db.close()
 
     def get_user_history(self, current_user):
         db = next(self.get_session())

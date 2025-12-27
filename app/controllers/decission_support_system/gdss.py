@@ -272,4 +272,10 @@ def calculate_patient_result(
     else:
         print("DEBUG: DB Session atau User ID kosong (None). Tidak menyimpan.")
 
+    # Include group information in response for client display (if available)
+    if group_name is not None:
+        final_result["group_name"] = group_name
+    if group_id is not None:
+        final_result["group_id"] = group_id
+
     return final_result 

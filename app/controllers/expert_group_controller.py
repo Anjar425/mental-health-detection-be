@@ -11,7 +11,7 @@ from ..models.expert_weight import ExpertWeight
 from ..models.preference import Preference
 from ..models.user import User
 from ..models.group_weight import GroupWeight
-from ..schemas.expert_group import ExpertGroupCreate, ExpertGroupUpdate
+from ..schemas.expert_group import ExpertGroupCreate, ExpertGroupUpdate, ExpertGroupSummary
 from ..schemas.group_ranking import (
     ExpertCapabilityOut,
     ExpertPreferenceOut,
@@ -647,17 +647,47 @@ class ExpertGroupController(BaseController):
 
     def get_all_groups(self):
         db: Session = next(self.get_session())
-        groups = db.query(ExpertGroup).all()
-        return [
-            {
-                "id": group.id,
-                "name": group.name,
-                "description": group.description,
-                "created_at": group.created_at,
-                "member_count": len(group.experts),
-            }
-            for group in groups
-        ]
+        try:
+            groups = db.query(ExpertGroup).options(joinedload(ExpertGroup.experts)).all()
+            summaries: List[ExpertGroupSummary] = []
+            for group in groups:
+                summaries.append(
+                    ExpertGroupSummary(
+                        id=group.id,
+                        name=group.name,
+                        description=group.description,
+                        created_at=str(group.created_at) if group.created_at else None,
+                        member_count=len(group.experts),
+                    )
+                )
+            return summaries
+        finally:
+            db.close()
+
+    def get_groups_for_user(self, user_id: int):
+        db: Session = next(self.get_session())
+        try:
+            groups = (
+                db.query(ExpertGroup)
+                .options(joinedload(ExpertGroup.experts))
+                .join(ExpertGroup.experts)
+                .filter(User.id == user_id)
+                .all()
+            )
+            summaries: List[ExpertGroupSummary] = []
+            for group in groups:
+                summaries.append(
+                    ExpertGroupSummary(
+                        id=group.id,
+                        name=group.name,
+                        description=group.description,
+                        created_at=str(group.created_at) if group.created_at else None,
+                        member_count=len(group.experts),
+                    )
+                )
+            return summaries
+        finally:
+            db.close()
 
     def get_group_with_members(self, group_id: int):
         db: Session = next(self.get_session())
@@ -1010,3 +1040,22 @@ class ExpertGroupController(BaseController):
             consensus_matrix=consensus_matrix,
             weights_info=weights_info,
         )
+
+    def get_group_rankings_for_expert(self, group_id: int, user_id: int) -> GroupRankingResponse:
+        db: Session = next(self.get_session())
+        try:
+            group = (
+                db.query(ExpertGroup)
+                .options(joinedload(ExpertGroup.experts))
+                .filter(ExpertGroup.id == group_id)
+                .first()
+            )
+            if not group:
+                raise HTTPException(status_code=404, detail="Group not found")
+            is_member = any(expert.id == user_id for expert in group.experts)
+            if not is_member:
+                raise HTTPException(status_code=403, detail="Anda tidak memiliki akses ke grup ini")
+        finally:
+            db.close()
+
+        return self.get_group_rankings(group_id)

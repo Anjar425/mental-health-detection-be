@@ -31,5 +31,14 @@ class ExpertGroupOut(ExpertGroupBase):
     members: Optional[List["UserOut"]] = None
     model_config = ConfigDict(from_attributes=True)
 
+
+class ExpertGroupSummary(BaseModel):
+    id: int
+    name: str
+    description: Optional[str] = None
+    created_at: Optional[str] = None
+    member_count: int = 0
+    model_config = ConfigDict(from_attributes=True)
+
 from app.schemas.user import UserResponse as UserOut
 ExpertGroupOut.model_rebuild()
