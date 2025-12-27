@@ -50,3 +50,5 @@ class BaseController:
     
     def get_user(self, db: Session, email: str):
         return db.query(User).filter(User.email == email).first()
+
+

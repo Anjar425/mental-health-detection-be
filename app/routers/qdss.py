@@ -8,7 +8,7 @@ router = APIRouter()
 @router.post("/")
 def calculate_qdds(payload: PatientScoreIn, current_user=Depends(DecissionSupportSystemController().get_current_user)):
     controller = DecissionSupportSystemController()
-    return controller.calculate_qdds(data=payload.scores, current_user=current_user, assessment_type=payload.type)
+    return controller.calculate_qdds(data=payload.scores, current_user=current_user, assessment_type=payload.type, group_id=payload.group_id)
 
 @router.post("/public")
 def calculate_public_qdds(payload: PatientScoreIn):
@@ -23,7 +23,8 @@ def calculate_public_qdds(payload: PatientScoreIn):
     return controller.calculate_qdds(
         data=payload.scores, 
         current_user=None, 
-        assessment_type=payload.type
+        assessment_type=payload.type,
+        group_id=payload.group_id
     )
 
 

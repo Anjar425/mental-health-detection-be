@@ -10,3 +10,5 @@ from .expert_profiles import ExpertProfile
 from .expert_weight import ExpertWeight
 from .preference import Preference
 from .assessment_history import AssessmentHistory
+from .expert_group import ExpertGroup, expert_group_association
+from .group_weight import GroupWeight

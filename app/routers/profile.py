@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 from ..schemas import ExpertProfileCreate, ExpertProfileResponse
 from ..controllers import ExpertProfilesController
+from ..controllers.permissions import require_admin_or_expert
 
 router = APIRouter()
 
@@ -9,7 +10,7 @@ def get_my_profile(current_user=Depends(ExpertProfilesController().get_current_u
     return ExpertProfilesController().get_my_profile(current_user=current_user)
 
 @router.post("/", response_model=ExpertProfileCreate)
-def create_or_update_profile(data: ExpertProfileCreate, current_user=Depends(ExpertProfilesController().get_current_user)):
+def create_or_update_profile(data: ExpertProfileCreate, current_user=Depends(require_admin_or_expert)):
     return ExpertProfilesController().create_or_update_profile(data=data, current_user=current_user)
     
 @router.get("/get-all")

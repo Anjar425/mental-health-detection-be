@@ -6,3 +6,4 @@ from .decission_support_system_controller import DecissionSupportSystemControlle
 from .ruleset_controller import RulesetController
 from .ranking_controller import RankingController
 from .fuzzy_inference_controller import FuzzyInferenceController
+from .expert_group_controller import ExpertGroupController

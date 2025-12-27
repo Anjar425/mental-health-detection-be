@@ -194,11 +194,13 @@ def create_dynamic_consensus_model(
     return final_consensus_model
 
 def calculate_patient_result(
-    patient_scores: List[int], 
+    patient_scores: List[int],
     consensus_model: np.ndarray,
     db: Optional[Session] = None,
     user_id: Optional[int] = None,
     assessment_type: str = "21",
+    group_id: Optional[int] = None,
+    group_name: Optional[str] = None,
 ) -> Dict[str, float]:
     accumulated_scores = {"depression": 0.0, "anxiety": 0.0, "stress": 0.0}
     
@@ -247,8 +249,10 @@ def calculate_patient_result(
                 depression_score=d_score,
                 anxiety_score=a_score,
                 stress_score=s_score,
-                type=str(assessment_type), # Pastikan string
+                type=str(assessment_type),  # Pastikan string
                 highest_severity=label,
+                group_id=group_id,
+                group_name=group_name,
             )
             
             # 4. Eksekusi DB

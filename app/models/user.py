@@ -6,6 +6,7 @@ import enum
 class RoleEnum(enum.Enum):
     user = "user"
     expert = "expert"
+    admin = "admin"
 
 class User(Base):
     __tablename__ = "users"
@@ -14,9 +15,15 @@ class User(Base):
     username = Column(String, unique=True, index=True)
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
-    role = Column(Enum(RoleEnum), default=RoleEnum.user)
+    role = Column(Enum(RoleEnum, native_enum=False), default=RoleEnum.user)
 
     rules = relationship("Rule", back_populates="user")
     profile = relationship("ExpertProfile", back_populates="user", uselist=False)
     weights = relationship("ExpertWeight", back_populates="user", uselist=False)
     preferences = relationship("Preference", back_populates="user")
+
+    groups = relationship(
+        "ExpertGroup",
+        secondary="expert_group_association",
+        back_populates="experts"
+    )

@@ -9,6 +9,9 @@ class AssessmentHistory(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 
+    group_id = Column(Integer, nullable=True)
+    group_name = Column(String, nullable=True)
+
     depression_score = Column(Integer, nullable=True)
     anxiety_score = Column(Integer, nullable=True)
     stress_score = Column(Integer, nullable=True)
