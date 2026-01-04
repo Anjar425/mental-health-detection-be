@@ -1,7 +1,9 @@
 import csv
 import os
+import random
 from sqlalchemy.orm import Session
-from app.models import ExpertWeight
+from app.models import ExpertWeight, User
+from app.models.user import RoleEnum
 
 
 def seed_expert_weight_data(db: Session):
@@ -36,3 +38,30 @@ def seed_expert_weight_data(db: Session):
 
     db.commit()
     print("ExpertWeight seeding completed!")
+
+    # Backfill missing weights for all experts (role=EXPERT) with default equal weights.
+    print("Backfilling ExpertWeight for missing experts with randomized weights (sum to 100)...")
+    expert_users = db.query(User).filter(User.role == RoleEnum.expert).all()
+    created_count = 0
+    for user in expert_users:
+        existing = db.query(ExpertWeight).filter(ExpertWeight.user_id == user.id).first()
+        if existing:
+            continue
+        # Generate 4 positive integers that sum to 100
+        parts = sorted([random.randint(5, 40) for _ in range(3)])
+        a = parts[0]
+        b = parts[1] - parts[0]
+        c = parts[2] - parts[1]
+        d = 100 - parts[2]
+        default_weight = ExpertWeight(
+            user_id=user.id,
+            education_weight=a,
+            patient_weight=b,
+            publication_weight=c,
+            flight_hours_weight=d,
+        )
+        db.add(default_weight)
+        created_count += 1
+    if created_count:
+        db.commit()
+    print(f"Backfill completed. Created {created_count} ExpertWeight rows for missing experts.")

@@ -1,7 +1,8 @@
 import csv
 import os
+import random
 from sqlalchemy.orm import Session
-from app.models import ExpertProfile
+from app.models import ExpertProfile, User, RoleEnum
 
 
 def seed_expert_profile_data(db: Session):
@@ -35,4 +36,26 @@ def seed_expert_profile_data(db: Session):
             db.add(profile)
 
     db.commit()
-    print("ExpertProfile seeding completed!")
+    print("ExpertProfile seeding from CSV completed!")
+
+    # Backfill: ensure every expert has an ExpertProfile (randomized, non-zero)
+    print("Backfilling missing expert profiles with randomized non-zero values...")
+    experts = db.query(User).filter(User.role == RoleEnum.expert).all()
+    created_count = 0
+    for expert in experts:
+        exists = db.query(ExpertProfile).filter(ExpertProfile.user_id == expert.id).first()
+        if exists:
+            continue
+        edu_choices = ["Diploma", "Sarjana", "Magister", "Doktor"]
+        profile = ExpertProfile(
+            user_id=expert.id,
+            flight_hours=random.randint(1, 40),
+            patient_count=random.randint(50, 1000),
+            education_level=random.choice(edu_choices),
+            publication_count=random.randint(1, 50),
+        )
+        db.add(profile)
+        created_count += 1
+    db.commit()
+    print(f"Backfill completed. Created {created_count} ExpertProfile rows.")
+    print("ExpertProfile seeding (CSV + backfill) completed!")

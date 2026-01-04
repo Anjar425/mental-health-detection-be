@@ -1,3 +1,4 @@
+import os
 from app.database import SessionLocal, engine, Base
 from app.seeder.dass21 import seed_dass21_data
 from app.seeder.dass42 import seed_dass42_data
@@ -22,9 +23,16 @@ def run_seeders():
 
     print("=== Running Seeder ===")
 
-    # Ensure DB tables exist (useful for initial setup/testing)
-    print("Ensuring database tables exist...")
-    Base.metadata.create_all(bind=engine)
+    # Optional reset: drop and recreate tables if RESET_DB env var is set
+    reset_flag = os.getenv("RESET_DB", "").lower() in ("1", "true", "yes")
+    if reset_flag:
+        print("RESET_DB enabled: dropping and recreating all tables...")
+        Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
+    else:
+        # Ensure DB tables exist (useful for initial setup/testing)
+        print("Ensuring database tables exist...")
+        Base.metadata.create_all(bind=engine)
 
     seed_dass21_data(db)
     seed_dass42_data(db)

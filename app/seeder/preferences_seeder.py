@@ -1,7 +1,8 @@
 import csv
 import os
+import random
 from sqlalchemy.orm import Session
-from app.models import Preference
+from app.models import Preference, User, RoleEnum, Dass21
 
 def seed_preference_data(db: Session):
     current_dir = os.path.dirname(__file__)                     # /app/seeder
@@ -34,4 +35,45 @@ def seed_preference_data(db: Session):
             db.add(pref)
 
     db.commit()
-    print("Preference seeding completed!")
+    print("Preference seeding from CSV completed!")
+
+    # Backfill: ensure every expert has preferences for all DASS-21 questions
+    print("Backfilling missing preferences for all experts with randomized distributions...")
+    # Retrieve all DASS-21 question ids
+    dass21_rows = db.query(Dass21).all()
+    question_ids = [r.id for r in dass21_rows]
+
+    experts = db.query(User).filter(User.role == RoleEnum.expert).all()
+    created_count = 0
+    for expert in experts:
+        for qid in question_ids:
+            cuts = sorted([random.randint(10, 80) for _ in range(2)])
+            dep = cuts[0]
+            anx = cuts[1] - cuts[0]
+            stress = 100 - cuts[1]
+            dep = max(5, dep)
+            anx = max(5, anx)
+            stress = max(5, stress)
+            fix = dep + anx + stress
+            dep = round(dep * 100 / fix)
+            anx = round(anx * 100 / fix)
+            stress = 100 - dep - anx
+            exists = (
+                db.query(Preference)
+                .filter(Preference.user_id == expert.id, Preference.dass21_id == qid)
+                .first()
+            )
+            if exists:
+                continue
+            pref = Preference(
+                user_id=expert.id,
+                dass21_id=qid,
+                percent_depression=int(dep),
+                percent_anxiety=int(anx),
+                percent_stress=int(stress),
+            )
+            db.add(pref)
+            created_count += 1
+    db.commit()
+    print(f"Backfill completed. Created {created_count} Preference rows.")
+    print("Preference seeding (CSV + backfill) completed!")
