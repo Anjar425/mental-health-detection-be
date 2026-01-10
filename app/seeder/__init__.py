@@ -4,6 +4,7 @@ from app.seeder.dass21 import seed_dass21_data
 from app.seeder.dass42 import seed_dass42_data
 from .user_seeder import seed_user_data
 from .expert_group_seeder import seed_expert_groups
+from .expert_group_combinations_seeder import seed_expert_group_combinations
 from .preferences_seeder import seed_preference_data
 from .expert_profiles_seeder import seed_expert_profile_data
 from .expert_weight_seeder import seed_expert_weight_data
@@ -38,6 +39,7 @@ def run_seeders():
     seed_dass42_data(db)
     seed_user_data(db)
     seed_expert_groups(db)
+    seed_expert_group_combinations(db)
     # Seed admin user explicitly (ensures admin even if CSV lacks it)
     seed_admin(db)
     seed_preference_data(db)
